@@ -95,6 +95,9 @@ class Authenticator(object):
             auth = self.request.META["HTTP_AUTHORIZATION"].split()
             self.auth_type = auth[0].lower()
             self.auth_value = " ".join(auth[1:]).strip()
+        else:
+            self.auth_type = 'bearer'
+            self.auth_value = request.REQUEST.get('access_token')
         self.request_hostname = self.request.META.get("REMOTE_HOST")
         self.request_port = self.request.META.get("SERVER_PORT")
         try:
@@ -140,7 +143,11 @@ class Authenticator(object):
         try:
             self.access_token = AccessToken.objects.get(token=token)
         except AccessToken.DoesNotExist:
-            raise InvalidToken("Token doesn't exist")
+            if token:
+                raise InvalidToken("Access token doesn't exist")
+            else:
+                raise InvalidToken("Access token was missing from the request")
+
 
     def _validate_mac(self, mac_header):
         """Validate MAC authentication. Not implemented."""
