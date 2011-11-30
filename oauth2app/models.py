@@ -14,6 +14,8 @@ from .consts import ACCESS_TOKEN_LENGTH, REFRESH_TOKEN_LENGTH
 from .consts import ACCESS_TOKEN_EXPIRATION, MAC_KEY_LENGTH, REFRESHABLE
 from .consts import CODE_KEY_LENGTH, CODE_EXPIRATION
 
+from trackable_object.models import TrackableObject
+
 
 class TimestampGenerator(object):
     """Callable Timestamp Generator that returns a UNIX time integer.
@@ -48,7 +50,7 @@ class KeyGenerator(object):
         return sha512(uuid4().hex).hexdigest()[0:self.length]
 
 
-class Client(models.Model):
+class Client(TrackableObject):
     """Stores client authentication data.
     
     **Args:**
@@ -72,6 +74,7 @@ class Client(models.Model):
     name = models.CharField(max_length=256)
     user = models.ForeignKey(User)
     description = models.TextField(null=True, blank=True)    
+    website = models.URLField(blank=True, max_length=256)
     key = models.CharField(
         unique=True, 
         max_length=CLIENT_KEY_LENGTH, 
@@ -82,6 +85,11 @@ class Client(models.Model):
         max_length=CLIENT_SECRET_LENGTH, 
         default=KeyGenerator(CLIENT_SECRET_LENGTH))
     redirect_uri = models.URLField(null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not self.id:
+            self.user = self.submitted_by
+        super(TrackableObject, self).save(*args, **kwargs)
 
 
 class AccessRange(models.Model):
