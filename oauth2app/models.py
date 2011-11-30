@@ -86,6 +86,10 @@ class Client(TrackableObject):
         default=KeyGenerator(CLIENT_SECRET_LENGTH))
     redirect_uri = models.URLField(null=True, blank=True)
 
+    # Printing
+    def __unicode__(self):
+        return self.name
+
     # URLs
     def get_url_kwargs(self):
         return {'app_id': self.id}
