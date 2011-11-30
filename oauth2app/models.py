@@ -86,11 +86,9 @@ class Client(TrackableObject):
         default=KeyGenerator(CLIENT_SECRET_LENGTH))
     redirect_uri = models.URLField(null=True, blank=True)
 
-    def save(self, *args, **kwargs):
-        if not self.id:
-            self.user = self.submitted_by
-        super(TrackableObject, self).save(*args, **kwargs)
-
+    @models.permalink
+    def get_absolute_url(self):
+        return ('app_detail', (), {'app_id': self.id})
 
 class AccessRange(models.Model):
     """Stores access range data, also known as scope.
