@@ -95,7 +95,7 @@ class Authenticator(object):
             auth = self.request.META["HTTP_AUTHORIZATION"].split()
             self.auth_type = auth[0].lower()
             self.auth_value = " ".join(auth[1:]).strip()
-        else:
+        elif self.request.META.get('REQUEST_METHOD') == 'GET':
             self.auth_type = 'bearer'
             self.auth_value = request.REQUEST.get('access_token')
         self.request_hostname = self.request.META.get("REMOTE_HOST")
